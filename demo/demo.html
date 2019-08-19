@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 50px">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>parse-html</title>
+    <script src="../dist/rollup-demo1.0.0.js"></script>
+    <style>
+    </style>
+</head>
+<body>  
+    <div id="app"></div>
+    <script>
+
+        var $app = document.querySelector('#app')
+
+        var pointers = {}
+        $app.addEventListener('touchstart', touchstart)
+
+        function touchstart (event) {
+            for (var i = 0; i < event.changedTouches.length; i++) {
+                var touch = event.changedTouches[i]
+                var pointer = {
+                    startTouch: mixTouchAttr({}, touch),
+                    startTime: Date.now(),
+                    status: 'tapping',
+                    element: event.target
+                }
+
+                pointers[touch.identifier] = pointer
+                // callback(pointers, touch)
+            }
+        }
+
+        function touchmove (event) {
+            for (var i = 0; i < event.changedTouches.length; i++) {
+                var touch = event.changedTouches[i]
+                var pointer = pointers[touch.identifier]
+
+                if (!pointer) {
+                    return
+                }
+
+                if (!(lastTouch in pointer)) {
+                    pointer.lastTouch = pointer.startTouch
+                    pointer.lastTime = pointer.startTime
+                    pointer.deltaX = pointer.deltaY = pointer.duration = pointer.distance = 0
+                }
+
+                var time = Date.now = pointer.lastTime
+
+                if (time > 0) {
+                    var RECORD_DURATION = 70
+
+                    if (time > RECORD_DURATION) {
+                        time = RECORD_DURATION
+                    }
+
+                    if (pointer.duration + time > RECORD_DURATION) {
+                        pointer.duration = RECORD_DURATION - time
+                    }
+
+                    pointer.duration += time
+                    pointer.lastTouch = mixTouchAttr({}, touch)
+                    pointer.lastTime = Date.now()
+
+                    pointer.deltaX = touch.clientX - touch.touchstart.clientX
+                    pointer.deltaY = touch.clientY - touch.touchstart.clientY
+
+                    pointer.distance = Math.sqrt(pointer.deltaX * pointer.deltaX + pointer.deltaY * pointer.deltaY)
+
+                    pointer.isVertical = !(x > y)
+
+                    // callback(pointers, touch)
+                }
+            }
+        }
+
+        function touchend (event) {
+            for (var i = 0; i < event.changedTouches.length; i++) {
+                var touch = event.changedTouches[i]
+                var pointer = pointers[touch.identifier]
+
+                if (!pointer) {
+                    continue
+                }
+
+                // callback(pointers, touch)
+            }
+        }
+
+        function mixTouchAttr (target, source) {
+            var touchKeys = ['screenX', 'screenY', 'clientX', 'clientY', 'pageX', 'pageY']
+
+            if (source) {
+                touchKeys.forEach(key => {
+                    target[key] = source[key]
+                })
+            }
+            return target
+        }
+
+    </script>
+</body>
+</html>
